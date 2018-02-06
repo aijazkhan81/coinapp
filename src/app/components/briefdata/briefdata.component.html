@@ -1,0 +1,79 @@
+<table>
+  <thead *ngIf="showHeader">
+    <tr>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Holding</th>
+      <th>Invested</th>
+      <th>
+        Worth
+      </th>
+      <th>
+        P/L
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of list">
+      <td>
+        {{item._body.data.base}}
+      </td>
+      <td>
+        {{item._body.data.amount | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.totalHolding | number : '1.2-3'}} {{item._body.data.base}}
+      </td>
+      <td>
+        {{item.totalInvestment | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.currentWorth | currency:'USD':'symbol'}}
+      </td>
+      <td [ngStyle]="{'color':item.currentWorth > item.totalInvestment ? 'green' : 'red' }">
+        <span>{{item.profitLoss | currency:'USD':'symbol'}}</span>
+        <span class="percentagetext">{{getPercentage(item.currentWorth, item.totalInvestment) | number : '1.2-2' | plPercentage}}</span>
+      </td>
+    </tr>
+    <tr *ngFor="let item of binList">
+      <td>
+        {{item.coin}}
+      </td>
+      <td>
+        {{item.currentPrice | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.totalHolding | number : '1.2-3'}} {{item.coin}}
+      </td>
+      <td>
+        {{item.totalInvestment | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.currentWorth | currency:'USD':'symbol'}}
+      </td>
+      <td [ngStyle]="{'color':item.currentWorth > item.totalInvestment ? 'green' : 'red' }">
+        <span>{{item.profitLoss | currency:'USD':'symbol'}}</span>
+        <span class="percentagetext">{{getPercentage(item.currentWorth, item.totalInvestment) | number : '1.2-2' | plPercentage}}</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Total
+      </td>
+      <td>
+        -
+      </td>
+      <td>-</td>
+      <td>
+        {{total.totalUsdSpent | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{total.totalCoinsWorth | currency:'USD':'symbol'}}
+      </td>
+      <td [ngStyle]="{'color':total.totalCoinsWorth > total.totalUsdSpent ? 'green' : 'red' }">
+        <span>{{total.totalCoinsWorth - total.totalUsdSpent | currency:'USD':'symbol'}}</span>
+        <span class="percentagetext">{{getPercentage(total.totalCoinsWorth, total.totalUsdSpent) | number : '1.2-2' | plPercentage}}</span>
+      </td>
+    </tr>
+  </tbody>
+</table>

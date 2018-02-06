@@ -1,1 +1,40 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700,900');
+
+body{
+        background: linear-gradient(-180deg,#434f61,#253346) fixed;
+    font-family: 'Roboto', sans-serif;
+    text-shadow: none;
+}
+
+.row, p, h1, h2, h3, h4{
+    margin: 0;
+}
+
+.tac{
+    text-align: center;
+}
+
+.cb{
+    clear: both;
+}
+
+.tar{
+    text-align: right;
+}
+
+.fl{
+    float: left;
+}
+
+.fr{
+    float: right;
+}
+
+.img-responsive{
+    margin: auto;
+}
+
+.logo{
+        width: 100px;
+    margin: 50px auto;
+}
