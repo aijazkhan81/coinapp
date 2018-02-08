@@ -171,54 +171,56 @@ export class AppComponent implements OnInit {
     percentage: 0
   }
 
-  binTotality = {
-    totalUsdSpent: 0,
-    totalCoinsWorth: 0,
-    percentage: 0
-  }
-
   user_list = [];
-  binance_list = [];
 
   constructor(private CoinbaseService: CoinbaseService, private BinanceService: BinanceService) { }
 
+  addingTotality = (listName) => {
+    for (let index = 0; index < listName.length; index++) {
+      this.totality.totalUsdSpent = this.totality.totalUsdSpent + listName[index].totalInvestment;
+      this.totality.totalCoinsWorth = this.totality.totalCoinsWorth + listName[index].currentWorth;
+      this.totality.percentage = (this.totality.totalCoinsWorth - this.totality.totalUsdSpent) / this.totality.totalUsdSpent * 100;
+    }
+  }
 
   cBsuccessCallback = (response) => {
-    response._body = JSON.parse(response._body);
-    var coinName = response._body.data.base.toLowerCase();
-    var filteredCoin = this.coins_list.filter((el) => el.coin == coinName);
-    var totalInvestment = 0;
-    var totalHolding = 0;
-    var currentWorth = 0;
-    var profitLoss = 0;
+    if (response.status == 200) {
+      response._body = JSON.parse(response._body);
+      response.coin = response._body.data.base;
+      response.currentPrice = response._body.data.amount;
 
-    for (let index = 0; index < filteredCoin[0].buying.length; index++) {
-      var moneyInvested, tax;
-      var el = filteredCoin[0].buying[index];
+      var coinName = response._body.data.base.toLowerCase();
+      var filteredCoin = this.coins_list.filter((el) => el.coin == coinName);
+      var totalInvestment = 0;
+      var totalHolding = 0;
+      var currentWorth = 0;
+      var profitLoss = 0;
 
-      moneyInvested = (el.priceBought * el.amountBought);
-      tax = (4 / 100) * moneyInvested;
-      currentWorth = currentWorth + (el.amountBought * response._body.data.amount);
+      for (let index = 0; index < filteredCoin[0].buying.length; index++) {
+        var moneyInvested, tax;
+        var el = filteredCoin[0].buying[index];
 
-      moneyInvested = tax + moneyInvested;
-      totalInvestment = totalInvestment + moneyInvested;
-      totalHolding = totalHolding + el.amountBought;
-    }
+        moneyInvested = (el.priceBought * el.amountBought);
+        tax = (4 / 100) * moneyInvested;
+        currentWorth = currentWorth + (el.amountBought * response._body.data.amount);
 
-    response.totalInvestment = totalInvestment;
-    response.totalHolding = totalHolding;
-    response.currentWorth = currentWorth;
-    response.profitLoss = (currentWorth - totalInvestment);
+        moneyInvested = tax + moneyInvested;
+        totalInvestment = totalInvestment + moneyInvested;
+        totalHolding = totalHolding + el.amountBought;
+      }
 
-    this.user_list.push(response);
+      response.totalInvestment = totalInvestment;
+      response.totalHolding = totalHolding;
+      response.currentWorth = currentWorth;
+      response.profitLoss = (currentWorth - totalInvestment);
 
-    this.totality.totalCoinsWorth = 0;
-    this.totality.totalUsdSpent = 0;
+      this.user_list.push(response);
 
-    for (let index = 0; index < this.user_list.length; index++) {
-      this.totality.totalUsdSpent = this.totality.totalUsdSpent + this.user_list[index].totalInvestment;
-      this.totality.totalCoinsWorth = this.totality.totalCoinsWorth + this.user_list[index].currentWorth;
-      this.totality.percentage = (this.totality.totalCoinsWorth - this.totality.totalUsdSpent) / this.totality.totalUsdSpent * 100;
+      this.totality.totalCoinsWorth = 0;
+      this.totality.totalUsdSpent = 0;
+
+      this.addingTotality(this.user_list);
+      this.CoinbaseService.hideSpinnerFn();
     }
   }
 
@@ -240,72 +242,48 @@ export class AppComponent implements OnInit {
   // Binance start
 
   biSuccessCallback = (response) => {
-    response._body = JSON.parse(response._body);
-    var test = response._body;
-    var newArray = test.filter((item) => {
-      return item.symbol.includes('BTC')
-    })
+    if (response.status == 200 && response._body.length > 3) {
+      response._body = JSON.parse(response._body);
+      var newArray = response._body.filter((item) => item.symbol.includes('BTC'))
 
-    // console.log(newArray);
-    // Filtered array containing all BTC
+      for (let index = 0; index < this.binanceCoins.length; index++) {
+        var el: any = this.binanceCoins[index];
+        // el is Coin from my array XLM
 
+        var binData = newArray.filter((coin) => coin.symbol.includes(el.coin));
+        var USDT = newArray.filter((coin) => coin.symbol.includes('BTCUSDT'))[0].price;
 
-    for (let index = 0; index < this.binanceCoins.length; index++) {
-      var el = this.binanceCoins[index];
-      // el is Coin from my array XLM
+        var totalHolding = 0;
+        var totalInvestment = 0;
+        var currentWorth = 0;
+        var profitLoss = 0;
 
-      var binData = newArray.filter(
-        (coin) => {
-          return coin.symbol.includes(el.coin)
+        for (let index = 0; index < el.buying.length; index++) {
+          var deepEl = el.buying[index];
+
+          totalInvestment = totalInvestment + (deepEl.priceBought * deepEl.amountBought);
+          totalHolding = totalHolding + deepEl.amountBought;
         }
-      )
 
-      var USDT = newArray.filter(
-        (coin) => {
-          return coin.symbol.includes('BTCUSDT')
-        }
-      )
+        currentWorth = totalHolding * binData[0].price * USDT;
 
-      USDT = USDT[0].price;
-
-      // console.log(binData);
-      // price and symbol from binance one object
-
-      var totalHolding = 0;
-      var totalInvestment = 0;
-      var currentWorth = 0;
-      var profitLoss = 0;
-
-      for (let index = 0; index < el.buying.length; index++) {
-        var deepEl = el.buying[index];
-
-        totalInvestment = totalInvestment + (deepEl.priceBought * deepEl.amountBought);
-        totalHolding = totalHolding + deepEl.amountBought;
+        el.totalInvestment = totalInvestment;
+        el.totalHolding = totalHolding;
+        el.currentWorth = currentWorth;
+        el.profitLoss = (currentWorth - totalInvestment);
+        el.currentPrice = binData[0].price * USDT;
+        this.user_list.push(el)
       }
 
-      currentWorth = totalHolding * binData[0].price * USDT;
-      profitLoss = currentWorth - totalInvestment;
-
-      el.totalInvestment = totalInvestment;
-      el.totalHolding = totalHolding;
-      el.currentWorth = currentWorth;
-      el.profitLoss = profitLoss;
-      el.currentPrice = binData[0].price * USDT;
-      this.binance_list.push(el)
+      this.addingTotality(this.user_list);
     }
-
-    for (let index = 0; index < this.binance_list.length; index++) {
-      this.totality.totalUsdSpent = this.totality.totalUsdSpent + this.binance_list[index].totalInvestment;
-      this.totality.totalCoinsWorth = this.totality.totalCoinsWorth + this.binance_list[index].currentWorth;
-      this.totality.percentage = (this.totality.totalCoinsWorth - this.totality.totalUsdSpent) / this.totality.totalUsdSpent * 100;
+    else {
+      console.log('Empty array returned from binance');
     }
-
-    // console.log(this.binance_list);
-    // console.log(this.totality);
-
   }
 
   biErrorCallback = (error) => {
+    console.log('Binance service failed');
     console.log(error);
   }
 
@@ -320,8 +298,6 @@ export class AppComponent implements OnInit {
     this.BinanceService.getData().subscribe(
       this.biSuccessCallback, this.biErrorCallback
     )
-
-
   }
 
 }

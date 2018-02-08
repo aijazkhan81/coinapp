@@ -1,5 +1,12 @@
-<table>
+<table *ngIf="list.length>0">
   <thead *ngIf="showHeader">
+    <tr>
+      <td colspan="6">
+        <div *ngIf="CoinbaseService.showSpinner">
+          <div class="loader"></div>
+        </div>
+      </td>
+    </tr>
     <tr>
       <th>Name</th>
       <th>Price</th>
@@ -15,27 +22,6 @@
   </thead>
   <tbody>
     <tr *ngFor="let item of list">
-      <td>
-        {{item._body.data.base}}
-      </td>
-      <td>
-        {{item._body.data.amount | currency:'USD':'symbol'}}
-      </td>
-      <td>
-        {{item.totalHolding | number : '1.2-3'}} {{item._body.data.base}}
-      </td>
-      <td>
-        {{item.totalInvestment | currency:'USD':'symbol'}}
-      </td>
-      <td>
-        {{item.currentWorth | currency:'USD':'symbol'}}
-      </td>
-      <td [ngStyle]="{'color':item.currentWorth > item.totalInvestment ? 'green' : 'red' }">
-        <span>{{item.profitLoss | currency:'USD':'symbol'}}</span>
-        <span class="percentagetext">{{getPercentage(item.currentWorth, item.totalInvestment) | number : '1.2-2' | plPercentage}}</span>
-      </td>
-    </tr>
-    <tr *ngFor="let item of binList">
       <td>
         {{item.coin}}
       </td>
@@ -56,6 +42,27 @@
         <span class="percentagetext">{{getPercentage(item.currentWorth, item.totalInvestment) | number : '1.2-2' | plPercentage}}</span>
       </td>
     </tr>
+    <!-- <tr *ngFor="let item of binList">
+      <td>
+        {{item.coin}}
+      </td>
+      <td>
+        {{item.currentPrice | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.totalHolding | number : '1.2-3'}} {{item.coin}}
+      </td>
+      <td>
+        {{item.totalInvestment | currency:'USD':'symbol'}}
+      </td>
+      <td>
+        {{item.currentWorth | currency:'USD':'symbol'}}
+      </td>
+      <td [ngStyle]="{'color':item.currentWorth > item.totalInvestment ? 'green' : 'red' }">
+        <span>{{item.profitLoss | currency:'USD':'symbol'}}</span>
+        <span class="percentagetext">{{getPercentage(item.currentWorth, item.totalInvestment) | number : '1.2-2' | plPercentage}}</span>
+      </td>
+    </tr> -->
     <tr>
       <td>
         Total

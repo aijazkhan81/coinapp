@@ -1,4 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { CoinbaseService } from './../../services/coinbase/coinbase.service';
 
 @Component({
   selector: 'app-briefdata',
@@ -7,7 +9,6 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class BriefdataComponent implements OnInit {
   @Input() list;
-  @Input() binList;
   @Input() showHeader;
   @Input() total;
 
@@ -16,7 +17,7 @@ export class BriefdataComponent implements OnInit {
     return percentage;
   }
 
-  constructor() { }
+  constructor(public CoinbaseService: CoinbaseService) { }
 
   ngOnInit() {
 
